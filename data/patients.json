@@ -1,0 +1,25 @@
+[
+  {
+    "firstNames": "John",
+    "lastNames": "Smith",
+    "gender": "MALE",
+    "dateOfBirth": "1992-02-10",
+    "ehrId": "e8beb87e-97db-4a38-b382-426936c85bd1"
+  },
+
+  {
+    "firstNames": "Codie",
+    "lastNames": "Marshall",
+    "gender": "MALE",
+    "dateOfBirth": "1990-11-24",
+    "ehrId": "9db12050-f1ed-4c68-a7b6-2135effa0407"
+  },
+
+  {
+    "firstNames": "Chloe",
+    "lastNames": "Pearson",
+    "gender": "FEMALE",
+    "dateOfBirth": "1990-08-11",
+    "ehrId": "24a0832d-12a7-4a34-86f4-4dc1b111ac25"
+  }
+]
