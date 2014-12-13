@@ -4,7 +4,36 @@
     "lastNames": "Smith",
     "gender": "MALE",
     "dateOfBirth": "1992-02-10",
-    "ehrId": "e8beb87e-97db-4a38-b382-426936c85bd1"
+    "ehrId": "e8beb87e-97db-4a38-b382-426936c85bd1",
+    "medicalData": [
+      {
+        "dateTime": "2014-10-08T18:55Z",
+        "bodyWeight": 94.2,
+        "pulse": 90,
+        "bodyTemperature": 36.5
+      },
+      {
+        "dateTime": "2014-10-18T16:32Z",
+        "bodyWeight": 90.5
+      },
+      {
+        "dateTime": "2014-10-28T19:52Z",
+        "bodyWeight": 87.8,
+        "pulse": 85,
+        "bodyTemperature": 36.5
+      },
+      {
+        "dateTime": "2014-11-07T15:14Z",
+        "bodyWeight": 84.6,
+        "pulse": 84
+      },
+      {
+        "dateTime": "2014-11-08T18:25Z",
+        "bodyWeight": 81.3,
+        "pulse": 85,
+        "bodyTemperature": 36.4
+      }
+    ]
   },
 
   {
@@ -12,7 +41,8 @@
     "lastNames": "Marshall",
     "gender": "MALE",
     "dateOfBirth": "1990-11-24",
-    "ehrId": "9db12050-f1ed-4c68-a7b6-2135effa0407"
+    "ehrId": "9db12050-f1ed-4c68-a7b6-2135effa0407",
+    "medicalData": []
   },
 
   {
@@ -20,6 +50,7 @@
     "lastNames": "Pearson",
     "gender": "FEMALE",
     "dateOfBirth": "1990-08-11",
-    "ehrId": "24a0832d-12a7-4a34-86f4-4dc1b111ac25"
+    "ehrId": "24a0832d-12a7-4a34-86f4-4dc1b111ac25",
+    "medicalData": []
   }
 ]
