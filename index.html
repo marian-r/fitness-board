@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="css/main.css"/>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script src="scripts/traceur-runtime.js"></script>
     <script src="out/scripts/main.js"></script>
 </head>
@@ -81,7 +83,19 @@
 
     <div class="row">
         <div class="col-md-6">
-
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Weight
+                        <span class="remove">
+                            <i class="glyphicon glyphicon-remove"></i>
+                        </span>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div id="chartWeight"></div>
+                </div>
+                <div class="panel-footer">&nbsp;</div>
+            </div>
         </div>
 
         <div class="col-md-6">
