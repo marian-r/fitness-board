@@ -10,6 +10,7 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
     <script src="scripts/traceur-runtime.js"></script>
     <script src="out/scripts/main.js"></script>
 </head>
@@ -65,7 +66,7 @@
                 <div class="col-md-3">
                     <label for="inputTemperature" class="label label-default">Body temperature</label>
                     <div class="input-group">
-                        <input id="inputTemperature" type="number" class="form-control input-mini" placeholder="75">
+                        <input id="inputTemperature" type="number" class="form-control input-mini" placeholder="36.5">
                         <span class="input-group-addon">°C</span>
                     </div>
                 </div>
@@ -81,11 +82,7 @@
         <div class="col-md-6">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Weight
-                        <span class="remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </span>
-                    </h3>
+                    <h3 class="panel-title">Weight</h3>
                 </div>
                 <div class="panel-body">
                     <div id="chartWeight"></div>
@@ -103,13 +100,9 @@
 
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-primary">
+            <div class="panel panel-success">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Pulse
-                        <span class="remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </span>
-                    </h3>
+                    <h3 class="panel-title">Pulse</h3>
                 </div>
                 <div class="panel-body">
                     <div id="chartPulse"></div>
@@ -119,13 +112,9 @@
         </div>
 
         <div class="col-md-6">
-            <div class="panel panel-primary">
+            <div class="panel panel-warning">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Temperature
-                        <span class="remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </span>
-                    </h3>
+                    <h3 class="panel-title">Temperature</h3>
                 </div>
                 <div class="panel-body">
                     <div id="chartTemperature"></div>
@@ -137,13 +126,9 @@
 
     <div class="row">
         <div class="col-md-6">
-            <div class="panel panel-primary">
+            <div class="panel panel-info">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Pulse / temperatures
-                        <span class="remove">
-                            <i class="glyphicon glyphicon-remove"></i>
-                        </span>
-                    </h3>
+                    <h3 class="panel-title">Pulse / temperatures</h3>
                 </div>
                 <div class="panel-body">
                     <div id="chartPulseTemperatures"></div>

@@ -10,8 +10,6 @@ export function generatePatients(callback) {
         for (let i = 0, len = users.length; i < len; i++) {
             let user = users[i];
 
-            console.log(user);
-
             createPatient(user, (ehrId, name) => {
                 ehrIds.push({ehrId, name });
                 callback(ehrIds);
