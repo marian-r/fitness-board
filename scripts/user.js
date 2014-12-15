@@ -1,6 +1,6 @@
 'use strict';
 
-import { createMedicalData, loadWeights, loadPulses, loadTemperatures } from './ehr';
+import { createMedicalData, loadWeights, loadPulses, loadTemperatures, loadPulseTemperatures } from './ehr';
 
 export class User {
     constructor({ ehrId, firstNames, lastNames, gender, dateOfBirth, medicalData = [] }) {
@@ -12,10 +12,16 @@ export class User {
         this.weights = [];
         this.pulses = [];
         this.temperatures = [];
+        this.pulseTemperatures = [];
     }
 
 
-    loadMedicalData({ weightsCallback = false, pulsesCallback = false, temperaturesCallback = false }) {
+    loadMedicalData({
+        weightsCallback = false,
+        pulsesCallback = false,
+        temperaturesCallback = false,
+        pulseTemperaturesCallback = false
+    }) {
 
         if (weightsCallback) {
             loadWeights(this.ehrId, (weights) => {
@@ -36,6 +42,13 @@ export class User {
                 this.temperatures = temperatures;
                 temperaturesCallback(this);
             });
+        }
+
+        if (pulseTemperaturesCallback) {
+            loadPulseTemperatures(this.ehrId, (data) => {
+                this.pulseTemperatures = data;
+                pulseTemperaturesCallback(this);
+            })
         }
     }
 

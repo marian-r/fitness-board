@@ -41,9 +41,49 @@ System.registerModule("../../scripts/chart", [], function() {
       return height - y(d.value);
     }).on('mouseover', tip.show).on('mouseout', tip.hide);
   }
-  return {get visualize() {
+  function visualizeCustom(data, htmlSelector, xProp, yProp, name) {
+    var units = arguments[5] !== (void 0) ? arguments[5] : '';
+    var margin = {
+      top: 40,
+      right: 20,
+      bottom: 30,
+      left: 40
+    },
+        width = 425 - margin.left - margin.right,
+        height = 286 - margin.top - margin.bottom;
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .1);
+    var y = d3.scale.linear().range([height, 0]);
+    var xAxis = d3.svg.axis().scale(x).orient("bottom");
+    var yAxis = d3.svg.axis().scale(y).orient("left");
+    var tip = d3.tip().attr('class', 'd3-tip').offset([-10, 0]).html(function(d) {
+      return "<strong>" + name + ":</strong> <span style='color:red'>" + d[yProp] + " " + units + "</span>";
+    });
+    var svg = d3.select(htmlSelector).html("").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    svg.call(tip);
+    x.domain(data.map(function(d) {
+      return d[xProp];
+    }));
+    y.domain([0, d3.max(data, function(d) {
+      return d[yProp];
+    })]);
+    svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
+    svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("x", -6).attr("y", -10).style("text-anchor", "end").text(units);
+    svg.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", function(d) {
+      return x(d[xProp]);
+    }).attr("width", x.rangeBand()).attr("y", function(d) {
+      return y(d[yProp]);
+    }).attr("height", function(d) {
+      return height - y(d[yProp]);
+    }).on('mouseover', tip.show).on('mouseout', tip.hide);
+  }
+  return {
+    get visualize() {
       return visualize;
-    }};
+    },
+    get visualizeCustom() {
+      return visualizeCustom;
+    }
+  };
 });
 System.registerModule("../../scripts/ehr", [], function() {
   "use strict";
@@ -159,6 +199,9 @@ System.registerModule("../../scripts/ehr", [], function() {
   function loadTemperatures(ehrId, callback) {
     loadMedicalData(ehrId, "body_temperature", "temperature", callback);
   }
+  function loadPulseTemperatures(ehrId, callback) {
+    runQuery(ehrId, callback);
+  }
   function loadMedicalData(ehrId, type, propertyName, callback) {
     $.ajax({
       url: baseUrl + "/view/" + ehrId + "/" + type,
@@ -183,27 +226,15 @@ System.registerModule("../../scripts/ehr", [], function() {
       }
     });
   }
-  function runQuery(ehrId) {
-    var AQL = "select " + "t/data[at0002]/events[at0003]/time/value as cas, " + "t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura_vrednost, " + "t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/units as temperatura_enota " + "from EHR e[e/ehr_id/value='" + ehrId + "'] " + "contains OBSERVATION t[openEHR-EHR-OBSERVATION.body_temperature.v1] " + "where t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude<35 " + "order by t/data[at0002]/events[at0003]/time/value desc " + "limit 10";
+  function runQuery(ehrId, callback) {
+    var AQL = 'select ' + 't/data[at0002]/events[at0003]/time/value as dateTime, ' + 'p/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as pulse, ' + 't/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperature ' + 'from EHR e[e/ehr_id/value=\'' + ehrId + '\'] ' + 'contains COMPOSITION a ' + 'contains ( ' + 'OBSERVATION p[openEHR-EHR-OBSERVATION.heart_rate-pulse.v1] and ' + 'OBSERVATION t[openEHR-EHR-OBSERVATION.body_temperature.v1]) ' + 'order by t/data[at0002]/events[at0003]/time/value asc ' + 'limit 10';
     $.ajax({
-      url: baseUrl + "/query?" + $.param({"aql": AQL}),
+      url: queryUrl + "?" + $.param({"aql": AQL}),
       type: 'GET',
-      headers: {"Ehr-Session": sessionId},
       success: function(res) {
-        var results = "<table class='table table-striped table-hover'><tr><th>Datum in ura</th><th class='text-right'>Telesna temperatura</th></tr>";
-        if (res) {
-          var rows = res.resultSet;
-          for (var i in rows) {
-            results += "<tr><td>" + rows[i].cas + "</td><td class='text-right'>" + rows[i].temperatura_vrednost + " " + rows[i].temperatura_enota + "</td>";
-          }
-          results += "</table>";
-          $("#rezultatMeritveVitalnihZnakov").append(results);
-        } else {
-          $("#preberiMeritveVitalnihZnakovSporocilo").html("<span class='obvestilo label label-warning fade-in'>Ni podatkov!</span>");
-        }
+        callback(res.resultSet);
       },
-      error: function() {
-        $("#preberiMeritveVitalnihZnakovSporocilo").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
+      error: function(err) {
         console.log(JSON.parse(err.responseText).userMessage);
       }
     });
@@ -226,6 +257,9 @@ System.registerModule("../../scripts/ehr", [], function() {
     },
     get loadTemperatures() {
       return loadTemperatures;
+    },
+    get loadPulseTemperatures() {
+      return loadPulseTemperatures;
     }
   };
 });
@@ -237,7 +271,8 @@ System.registerModule("../../scripts/user", [], function() {
       createMedicalData = $__0.createMedicalData,
       loadWeights = $__0.loadWeights,
       loadPulses = $__0.loadPulses,
-      loadTemperatures = $__0.loadTemperatures;
+      loadTemperatures = $__0.loadTemperatures,
+      loadPulseTemperatures = $__0.loadPulseTemperatures;
   var User = function User($__3) {
     var $__5;
     var $__4 = $__3,
@@ -255,16 +290,19 @@ System.registerModule("../../scripts/user", [], function() {
     this.weights = [];
     this.pulses = [];
     this.temperatures = [];
+    this.pulseTemperatures = [];
   };
   ($traceurRuntime.createClass)(User, {
     loadMedicalData: function($__3) {
       var $__5,
           $__6,
-          $__7;
+          $__7,
+          $__8;
       var $__4 = $__3,
           weightsCallback = ($__5 = $__4.weightsCallback) === void 0 ? false : $__5,
           pulsesCallback = ($__6 = $__4.pulsesCallback) === void 0 ? false : $__6,
-          temperaturesCallback = ($__7 = $__4.temperaturesCallback) === void 0 ? false : $__7;
+          temperaturesCallback = ($__7 = $__4.temperaturesCallback) === void 0 ? false : $__7,
+          pulseTemperaturesCallback = ($__8 = $__4.pulseTemperaturesCallback) === void 0 ? false : $__8;
       var $__1 = this;
       if (weightsCallback) {
         loadWeights(this.ehrId, (function(weights) {
@@ -282,6 +320,12 @@ System.registerModule("../../scripts/user", [], function() {
         loadTemperatures(this.ehrId, (function(temperatures) {
           $__1.temperatures = temperatures;
           temperaturesCallback($__1);
+        }));
+      }
+      if (pulseTemperaturesCallback) {
+        loadPulseTemperatures(this.ehrId, (function(data) {
+          $__1.pulseTemperatures = data;
+          pulseTemperaturesCallback($__1);
         }));
       }
     },
@@ -326,7 +370,9 @@ System.registerModule("../../scripts/app", [], function() {
   var __moduleName = "../../scripts/app";
   'use strict';
   var User = System.get("../../scripts/user").User;
-  var visualize = System.get("../../scripts/chart").visualize;
+  var $__1 = System.get("../../scripts/chart"),
+      visualize = $__1.visualize,
+      visualizeCustom = $__1.visualizeCustom;
   var loadPatient = System.get("../../scripts/ehr").loadPatient;
   var App = function App() {
     this.users = {};
@@ -351,6 +397,9 @@ System.registerModule("../../scripts/app", [], function() {
             },
             temperaturesCallback: function(user) {
               visualizeTemperature(user);
+            },
+            pulseTemperaturesCallback: function(user) {
+              visualizePulseTemperature(user);
             }
           });
         }));
@@ -375,6 +424,9 @@ System.registerModule("../../scripts/app", [], function() {
   }
   function visualizeTemperature(user) {
     visualize(user.temperatures, '#chartTemperature', 'Temperature', '°C');
+  }
+  function visualizePulseTemperature(user) {
+    visualizeCustom(user.pulseTemperatures, '#chartPulseTemperatures', 'temperature', 'pulse', 'Pulse', '/min');
   }
   return {get App() {
       return App;

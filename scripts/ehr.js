@@ -123,6 +123,10 @@ export function loadTemperatures(ehrId, callback) {
     loadMedicalData(ehrId, "body_temperature", "temperature", callback);
 }
 
+export function loadPulseTemperatures(ehrId, callback) {
+    runQuery(ehrId, callback);
+}
+
 function loadMedicalData(ehrId, type, propertyName, callback) {
     $.ajax({
         url: baseUrl + "/view/" + ehrId + "/" + type,
@@ -147,6 +151,31 @@ function loadMedicalData(ehrId, type, propertyName, callback) {
             callback(arr.reverse());
         },
         error: function() {
+            console.log(JSON.parse(err.responseText).userMessage);
+        }
+    });
+}
+
+function runQuery(ehrId, callback) {
+    var AQL = 'select ' +
+            't/data[at0002]/events[at0003]/time/value as dateTime, ' +
+            'p/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as pulse, ' +
+            't/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperature ' +
+        'from EHR e[e/ehr_id/value=\'' + ehrId + '\'] ' + // have to use single quotes
+        'contains COMPOSITION a ' +
+        'contains ( ' +
+            'OBSERVATION p[openEHR-EHR-OBSERVATION.heart_rate-pulse.v1] and ' +
+            'OBSERVATION t[openEHR-EHR-OBSERVATION.body_temperature.v1]) ' +
+        'order by t/data[at0002]/events[at0003]/time/value asc ' +
+        'limit 10';
+
+    $.ajax({
+        url: queryUrl + "?" + $.param({ "aql": AQL }),
+        type: 'GET',
+        success: function (res) {
+            callback(res.resultSet);
+        },
+        error: function (err) {
             console.log(JSON.parse(err.responseText).userMessage);
         }
     });

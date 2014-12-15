@@ -1,7 +1,7 @@
 'use strict';
 
 import { User } from './user';
-import { visualize } from './chart';
+import { visualize, visualizeCustom } from './chart';
 import { loadPatient } from './ehr';
 
 export class App {
@@ -32,6 +32,9 @@ export class App {
                     },
                     temperaturesCallback: function (user) {
                         visualizeTemperature(user);
+                    },
+                    pulseTemperaturesCallback: function (user) {
+                        visualizePulseTemperature(user);
                     }
                 });
             });
@@ -62,3 +65,8 @@ function visualizePulse(user) {
 function visualizeTemperature(user) {
     visualize(user.temperatures, '#chartTemperature', 'Temperature', '°C');
 }
+
+function visualizePulseTemperature(user) {
+    visualizeCustom(user.pulseTemperatures, '#chartPulseTemperatures', 'temperature', 'pulse', 'Pulse', '/min');
+}
+
