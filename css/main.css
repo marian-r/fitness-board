@@ -10,6 +10,10 @@ button.main-submit {
     margin-bottom: 20px;
 }
 
+#twitter-widget-0{
+    width: 100% !important;
+}
+
 /* CHART */
 .axis path,
 .axis line {
