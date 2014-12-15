@@ -1,5 +1,5 @@
 
-export function visualize(data, propertyName) {
+export function visualize(data, propertyName, htmlSelector, name, units = '') {
     var margin = {top: 40, right: 20, bottom: 30, left: 40},
         width = 425 - margin.left - margin.right,
         height = 286 - margin.top - margin.bottom;
@@ -29,10 +29,10 @@ export function visualize(data, propertyName) {
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            return "<strong>Weight:</strong> <span style='color:red'>" + d[propertyName] + " Kg</span>";
+            return "<strong>" + name + ":</strong> <span style='color:red'>" + d[propertyName] + " " + units + "</span>";
         });
 
-    var svg = d3.select("#chartWeight").html("").append("svg")
+    var svg = d3.select(htmlSelector).html("").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -59,7 +59,7 @@ export function visualize(data, propertyName) {
         .attr("x", -6)
         .attr("y", -10)
         .style("text-anchor", "end")
-        .text("Kg");
+        .text(units);
 
     svg.selectAll(".bar")
         .data(data)

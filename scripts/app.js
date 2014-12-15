@@ -20,11 +20,19 @@ export class App {
                 this.users[ehrId] = user;
                 this.selectedUser = user;
 
+                console.log(user);
+
                 this.renderUser();
 
                 user.loadMedicalData({
                     weightsCallback: function (user) {
-                        visualize(user.weights, "bodyWeight");
+                        visualizeWeights(user);
+                    },
+                    pulsesCallback: function (user) {
+                        visualizePulse(user);
+                    },
+                    temperaturesCallback: function (user) {
+                        visualizeTemperature(user);
                     }
                 });
             });
@@ -39,6 +47,20 @@ export class App {
     renderUser() {
         var user = this.selectedUser;
         $('#userName').html(user.firstName + ' ' + user.lastName);
-        visualize(user.weights, "bodyWeight");
+        visualizeWeights(user);
+        visualizePulse(user);
+        visualizeTemperature(user);
     }
+}
+
+function visualizeWeights(user) {
+    visualize(user.weights, 'bodyWeight', '#chartWeight', 'Weight', 'Kg');
+}
+
+function visualizePulse(user) {
+    visualize(user.pulses, 'pulse', '#chartPulse', 'Pulse', '/min');
+}
+
+function visualizeTemperature(user) {
+    visualize(user.temperatures, 'bodyTemperature', '#chartTemperature', 'Temperature', '°C');
 }

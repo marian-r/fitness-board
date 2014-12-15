@@ -1,6 +1,6 @@
 'use strict';
 
-import { createMedicalData, loadWeights, loadPulses } from './ehr';
+import { createMedicalData, loadWeights, loadPulses, loadTemperatures } from './ehr';
 
 export class User {
     constructor({ ehrId, firstNames, lastNames, gender, dateOfBirth, medicalData = [] }) {
@@ -28,6 +28,13 @@ export class User {
             loadPulses(this.ehrId, (pulses) => {
                 this.pulses = pulses;
                 pulsesCallback(this);
+            });
+        }
+
+        if (temperaturesCallback) {
+            loadTemperatures(this.ehrId, (temperatures) => {
+                this.temperatures = temperatures;
+                temperaturesCallback(this);
             });
         }
     }

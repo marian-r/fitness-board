@@ -44,7 +44,7 @@ function submitForm() {
         console.log("Required");
     }
 
-    app.selectedUser.addMedicalData({ bodyWeight, pulse, bodyTemperature, dateTime });
+    app.selectedUser.addMedicalData({ dateTime, bodyWeight, pulse, bodyTemperature });
     app.renderUser();
 }
 

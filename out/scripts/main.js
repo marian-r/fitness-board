@@ -1,7 +1,8 @@
 System.registerModule("../../scripts/chart", [], function() {
   "use strict";
   var __moduleName = "../../scripts/chart";
-  function visualize(data, propertyName) {
+  function visualize(data, propertyName, htmlSelector, name) {
+    var units = arguments[4] !== (void 0) ? arguments[4] : '';
     var margin = {
       top: 40,
       right: 20,
@@ -20,9 +21,9 @@ System.registerModule("../../scripts/chart", [], function() {
     });
     var yAxis = d3.svg.axis().scale(y).orient("left");
     var tip = d3.tip().attr('class', 'd3-tip').offset([-10, 0]).html(function(d) {
-      return "<strong>Weight:</strong> <span style='color:red'>" + d[propertyName] + " Kg</span>";
+      return "<strong>" + name + ":</strong> <span style='color:red'>" + d[propertyName] + " " + units + "</span>";
     });
-    var svg = d3.select("#chartWeight").html("").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var svg = d3.select(htmlSelector).html("").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     svg.call(tip);
     x.domain(data.map(function(d) {
       return d.dateTime;
@@ -31,7 +32,7 @@ System.registerModule("../../scripts/chart", [], function() {
       return d[propertyName];
     })]);
     svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
-    svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("x", -6).attr("y", -10).style("text-anchor", "end").text("Kg");
+    svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("x", -6).attr("y", -10).style("text-anchor", "end").text(units);
     svg.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", function(d) {
       return x(d.dateTime);
     }).attr("width", x.rangeBand()).attr("y", function(d) {
@@ -113,12 +114,12 @@ System.registerModule("../../scripts/ehr", [], function() {
       data['vital_signs/body_weight/any_event/body_weight'] = bodyWeight;
     }
     if (pulse) {
-      data["vital_signs/body_temperature/any_event/temperature|magnitude"] = bodyTemperature;
-      data["vital_signs/body_temperature/any_event/temperature|unit"] = '°C';
-    }
-    if (bodyTemperature) {
       data["vital_signs/pulse/any_event/rate|magnitude"] = pulse;
       data["vital_signs/pulse/any_event/rate|unit"] = "/min";
+    }
+    if (bodyTemperature) {
+      data["vital_signs/body_temperature/any_event/temperature|magnitude"] = bodyTemperature;
+      data["vital_signs/body_temperature/any_event/temperature|unit"] = '°C';
     }
     var params = {
       "ehrId": ehrId,
@@ -157,14 +158,35 @@ System.registerModule("../../scripts/ehr", [], function() {
   function loadPulses(ehrId, callback) {
     loadMedicalData(ehrId, "pulse", function(res) {
       var pulses = [];
+      console.log(res);
       for (var i = 0,
           len = res.length; i < len; i++) {
+        var $__0 = res[i],
+            time = $__0.time,
+            pulse = $__0.pulse;
         pulses.push({
-          dateTime: res.time,
-          bodyWeight: res.pulse
+          dateTime: time,
+          pulse: pulse
         });
       }
       callback(pulses);
+    });
+  }
+  function loadTemperatures(ehrId, callback) {
+    loadMedicalData(ehrId, "body_temperature", function(res) {
+      var temperatures = [];
+      console.log(res);
+      for (var i = 0,
+          len = res.length; i < len; i++) {
+        var $__0 = res[i],
+            time = $__0.time,
+            temperature = $__0.temperature;
+        temperatures.push({
+          dateTime: time,
+          bodyTemperature: temperature
+        });
+      }
+      callback(temperatures);
     });
   }
   function loadMedicalData(ehrId, type, callback) {
@@ -194,6 +216,9 @@ System.registerModule("../../scripts/ehr", [], function() {
     },
     get loadPulses() {
       return loadPulses;
+    },
+    get loadTemperatures() {
+      return loadTemperatures;
     }
   };
 });
@@ -204,7 +229,8 @@ System.registerModule("../../scripts/user", [], function() {
   var $__0 = System.get("../../scripts/ehr"),
       createMedicalData = $__0.createMedicalData,
       loadWeights = $__0.loadWeights,
-      loadPulses = $__0.loadPulses;
+      loadPulses = $__0.loadPulses,
+      loadTemperatures = $__0.loadTemperatures;
   var User = function User($__3) {
     var $__5;
     var $__4 = $__3,
@@ -243,6 +269,12 @@ System.registerModule("../../scripts/user", [], function() {
         loadPulses(this.ehrId, (function(pulses) {
           $__1.pulses = pulses;
           pulsesCallback($__1);
+        }));
+      }
+      if (temperaturesCallback) {
+        loadTemperatures(this.ehrId, (function(temperatures) {
+          $__1.temperatures = temperatures;
+          temperaturesCallback($__1);
         }));
       }
     },
@@ -302,10 +334,19 @@ System.registerModule("../../scripts/app", [], function() {
           var user = new User(data);
           $__3.users[ehrId] = user;
           $__3.selectedUser = user;
+          console.log(user);
           $__3.renderUser();
-          user.loadMedicalData({weightsCallback: function(user) {
-              visualize(user.weights, "bodyWeight");
-            }});
+          user.loadMedicalData({
+            weightsCallback: function(user) {
+              visualizeWeights(user);
+            },
+            pulsesCallback: function(user) {
+              visualizePulse(user);
+            },
+            temperaturesCallback: function(user) {
+              visualizeTemperature(user);
+            }
+          });
         }));
       } else {
         this.selectedUser = this.users[ehrId];
@@ -315,9 +356,20 @@ System.registerModule("../../scripts/app", [], function() {
     renderUser: function() {
       var user = this.selectedUser;
       $('#userName').html(user.firstName + ' ' + user.lastName);
-      visualize(user.weights, "bodyWeight");
+      visualizeWeights(user);
+      visualizePulse(user);
+      visualizeTemperature(user);
     }
   }, {});
+  function visualizeWeights(user) {
+    visualize(user.weights, 'bodyWeight', '#chartWeight', 'Weight', 'Kg');
+  }
+  function visualizePulse(user) {
+    visualize(user.pulses, 'pulse', '#chartPulse', 'Pulse', '/min');
+  }
+  function visualizeTemperature(user) {
+    visualize(user.temperatures, 'bodyTemperature', '#chartTemperature', 'Temperature', '°C');
+  }
   return {get App() {
       return App;
     }};
@@ -387,10 +439,10 @@ System.registerModule("../../scripts/main.js", [], function() {
       console.log("Required");
     }
     app.selectedUser.addMedicalData({
+      dateTime: dateTime,
       bodyWeight: bodyWeight,
       pulse: pulse,
-      bodyTemperature: bodyTemperature,
-      dateTime: dateTime
+      bodyTemperature: bodyTemperature
     });
     app.renderUser();
   }

@@ -66,12 +66,12 @@ export function createMedicalData(ehrId, { dateTime, bodyWeight, pulse, bodyTemp
         data['vital_signs/body_weight/any_event/body_weight'] = bodyWeight;
     }
     if (pulse) {
-        data["vital_signs/body_temperature/any_event/temperature|magnitude"] = bodyTemperature;
-        data["vital_signs/body_temperature/any_event/temperature|unit"] = '°C';
-    }
-    if (bodyTemperature) {
         data["vital_signs/pulse/any_event/rate|magnitude"] = pulse;
         data["vital_signs/pulse/any_event/rate|unit"] = "/min";
+    }
+    if (bodyTemperature) {
+        data["vital_signs/body_temperature/any_event/temperature|magnitude"] = bodyTemperature;
+        data["vital_signs/body_temperature/any_event/temperature|unit"] = '°C';
     }
 
 
@@ -118,13 +118,37 @@ export function loadPulses(ehrId, callback) {
     loadMedicalData(ehrId, "pulse", function (res) {
         var pulses = [];
 
+        console.log(res);
+
         for (let i = 0, len = res.length; i < len; i++) {
+
+            var { time, pulse } = res[i];
+
             pulses.push({
-                dateTime: res.time,
-                bodyWeight: res.pulse
+                dateTime:  time,
+                pulse: pulse
             });
         }
         callback(pulses);
+    });
+}
+
+export function loadTemperatures(ehrId, callback) {
+    loadMedicalData(ehrId, "body_temperature", function (res) {
+        var temperatures = [];
+
+        console.log(res);
+
+        for (let i = 0, len = res.length; i < len; i++) {
+
+            var { time, temperature } = res[i];
+
+            temperatures.push({
+                dateTime:  time,
+                bodyTemperature: temperature
+            });
+        }
+        callback(temperatures);
     });
 }
 
