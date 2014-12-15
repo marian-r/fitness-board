@@ -17,10 +17,9 @@ export class App {
             loadPatient(ehrId, (data) => {
                 data.ehrId = ehrId;
                 var user = new User(data);
+
                 this.users[ehrId] = user;
                 this.selectedUser = user;
-
-                console.log(user);
 
                 this.renderUser();
 
@@ -38,7 +37,6 @@ export class App {
             });
 
         } else {
-
             this.selectedUser = this.users[ehrId];
             this.renderUser();
         }

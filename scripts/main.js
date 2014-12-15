@@ -3,6 +3,7 @@
 import { App } from './app';
 import { generatePatients } from './generator';
 
+var app = new App();
 var ehrIds = [
     {
         ehrId: "e8beb87e-97db-4a38-b382-426936c85bd1",
@@ -16,23 +17,6 @@ var ehrIds = [
     }
 ];
 
-var app = new App();
-
-var baseUrl = 'https://rest.ehrscape.com/rest/v1';
-var queryUrl = baseUrl + '/query';
-
-var username = "ois.seminar";
-var password = "ois4fri";
-
-function getSessionId() {
-    var response = $.ajax({
-        type: "POST",
-        url: baseUrl + "/session?username=" + encodeURIComponent(username) +
-        "&password=" + encodeURIComponent(password),
-        async: false
-    });
-    return response.responseJSON.sessionId;
-}
 
 function submitForm() {
     var dateTime = new Date(); // current time
@@ -64,10 +48,6 @@ function initUserLinks(ehrIds) {
 }
 
 $(function () {
-    $.ajaxSetup({
-        headers: {"Ehr-Session": getSessionId()}
-    });
-
     initUserLinks(ehrIds);
 
     $(document).on('click', 'a[data-user]', function (e) {

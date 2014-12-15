@@ -51,6 +51,17 @@ System.registerModule("../../scripts/ehr", [], function() {
   'use strict';
   var baseUrl = 'https://rest.ehrscape.com/rest/v1';
   var queryUrl = baseUrl + '/query';
+  var username = "ois.seminar";
+  var password = "ois4fri";
+  function getSessionId() {
+    var response = $.ajax({
+      type: "POST",
+      url: baseUrl + "/session?username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password),
+      async: false
+    });
+    return response.responseJSON.sessionId;
+  }
+  $.ajaxSetup({headers: {"Ehr-Session": getSessionId()}});
   function loadPatient(ehrId, callback) {
     $.ajax({
       url: baseUrl + "/demographics/ehr/" + ehrId + "/party",
@@ -158,7 +169,6 @@ System.registerModule("../../scripts/ehr", [], function() {
   function loadPulses(ehrId, callback) {
     loadMedicalData(ehrId, "pulse", function(res) {
       var pulses = [];
-      console.log(res);
       for (var i = 0,
           len = res.length; i < len; i++) {
         var $__0 = res[i],
@@ -175,7 +185,6 @@ System.registerModule("../../scripts/ehr", [], function() {
   function loadTemperatures(ehrId, callback) {
     loadMedicalData(ehrId, "body_temperature", function(res) {
       var temperatures = [];
-      console.log(res);
       for (var i = 0,
           len = res.length; i < len; i++) {
         var $__0 = res[i],
@@ -334,7 +343,6 @@ System.registerModule("../../scripts/app", [], function() {
           var user = new User(data);
           $__3.users[ehrId] = user;
           $__3.selectedUser = user;
-          console.log(user);
           $__3.renderUser();
           user.loadMedicalData({
             weightsCallback: function(user) {
@@ -407,6 +415,7 @@ System.registerModule("../../scripts/main.js", [], function() {
   'use strict';
   var App = System.get("../../scripts/app").App;
   var generatePatients = System.get("../../scripts/generator").generatePatients;
+  var app = new App();
   var ehrIds = [{
     ehrId: "e8beb87e-97db-4a38-b382-426936c85bd1",
     name: "John Smith"
@@ -417,19 +426,6 @@ System.registerModule("../../scripts/main.js", [], function() {
     ehrId: "24a0832d-12a7-4a34-86f4-4dc1b111ac25",
     name: "Chloe Pearson"
   }];
-  var app = new App();
-  var baseUrl = 'https://rest.ehrscape.com/rest/v1';
-  var queryUrl = baseUrl + '/query';
-  var username = "ois.seminar";
-  var password = "ois4fri";
-  function getSessionId() {
-    var response = $.ajax({
-      type: "POST",
-      url: baseUrl + "/session?username=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password),
-      async: false
-    });
-    return response.responseJSON.sessionId;
-  }
   function submitForm() {
     var dateTime = new Date();
     var bodyWeight = $("#inputWeight").val();
@@ -458,7 +454,6 @@ System.registerModule("../../scripts/main.js", [], function() {
     }
   }
   $(function() {
-    $.ajaxSetup({headers: {"Ehr-Session": getSessionId()}});
     initUserLinks(ehrIds);
     $(document).on('click', 'a[data-user]', function(e) {
       var ehrId = $(this).data('user');

@@ -3,6 +3,23 @@
 var baseUrl = 'https://rest.ehrscape.com/rest/v1';
 var queryUrl = baseUrl + '/query';
 
+var username = "ois.seminar";
+var password = "ois4fri";
+
+function getSessionId() {
+    var response = $.ajax({
+        type: "POST",
+        url: baseUrl + "/session?username=" + encodeURIComponent(username) +
+        "&password=" + encodeURIComponent(password),
+        async: false
+    });
+    return response.responseJSON.sessionId;
+}
+
+$.ajaxSetup({
+    headers: {"Ehr-Session": getSessionId()}
+});
+
 export function loadPatient(ehrId, callback) {
     $.ajax({
         url: baseUrl + "/demographics/ehr/" + ehrId + "/party",
@@ -74,7 +91,6 @@ export function createMedicalData(ehrId, { dateTime, bodyWeight, pulse, bodyTemp
         data["vital_signs/body_temperature/any_event/temperature|unit"] = '°C';
     }
 
-
     var params = {
         "ehrId": ehrId,
         templateId: 'Vital Signs',
@@ -88,7 +104,6 @@ export function createMedicalData(ehrId, { dateTime, bodyWeight, pulse, bodyTemp
         data: JSON.stringify(data),
         success: function (res) {
             console.log(res.meta.href);
-
         },
         error: function (err) {
             console.log(JSON.parse(err.responseText).userMessage);
@@ -118,8 +133,6 @@ export function loadPulses(ehrId, callback) {
     loadMedicalData(ehrId, "pulse", function (res) {
         var pulses = [];
 
-        console.log(res);
-
         for (let i = 0, len = res.length; i < len; i++) {
 
             var { time, pulse } = res[i];
@@ -136,8 +149,6 @@ export function loadPulses(ehrId, callback) {
 export function loadTemperatures(ehrId, callback) {
     loadMedicalData(ehrId, "body_temperature", function (res) {
         var temperatures = [];
-
-        console.log(res);
 
         for (let i = 0, len = res.length; i < len; i++) {
 
