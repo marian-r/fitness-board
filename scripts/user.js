@@ -43,15 +43,15 @@ export class User {
     addMedicalData({ dateTime, bodyWeight, pulse, bodyTemperature }) {
 
         if (bodyWeight) {
-            this.weights.push({ dateTime, bodyWeight });
+            this.weights.push({ dateTime, value: bodyWeight });
         }
 
         if (pulse) {
-            this.pulses.push({ dateTime, pulse });
+            this.pulses.push({ dateTime, value: pulse });
         }
 
         if (bodyTemperature) {
-            this.temperatures.push({ dateTime, bodyTemperature });
+            this.temperatures.push({ dateTime, value: bodyTemperature });
         }
 
         createMedicalData(this.ehrId, { dateTime, bodyWeight, pulse, bodyTemperature });

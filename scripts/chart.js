@@ -1,5 +1,5 @@
 
-export function visualize(data, propertyName, htmlSelector, name, units = '') {
+export function visualize(data, htmlSelector, name, units = '') {
     var margin = {top: 40, right: 20, bottom: 30, left: 40},
         width = 425 - margin.left - margin.right,
         height = 286 - margin.top - margin.bottom;
@@ -29,7 +29,7 @@ export function visualize(data, propertyName, htmlSelector, name, units = '') {
         .attr('class', 'd3-tip')
         .offset([-10, 0])
         .html(function (d) {
-            return "<strong>" + name + ":</strong> <span style='color:red'>" + d[propertyName] + " " + units + "</span>";
+            return "<strong>" + name + ":</strong> <span style='color:red'>" + d.value + " " + units + "</span>";
         });
 
     var svg = d3.select(htmlSelector).html("").append("svg")
@@ -44,7 +44,7 @@ export function visualize(data, propertyName, htmlSelector, name, units = '') {
         return d.dateTime;
     }));
     y.domain([0, d3.max(data, function (d) {
-        return d[propertyName];
+        return d.value;
     })]);
 
     svg.append("g")
@@ -67,8 +67,8 @@ export function visualize(data, propertyName, htmlSelector, name, units = '') {
         .attr("class", "bar")
         .attr("x", function (d) { return x(d.dateTime); })
         .attr("width", x.rangeBand())
-        .attr("y", function (d) { return y(d[propertyName]); })
-        .attr("height", function (d) { return height - y(d[propertyName]); })
+        .attr("y", function (d) { return y(d.value); })
+        .attr("height", function (d) { return height - y(d.value); })
         .on('mouseover', tip.show)
         .on('mouseout', tip.hide);
 }

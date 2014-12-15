@@ -21,7 +21,7 @@ export class App {
                 this.users[ehrId] = user;
                 this.selectedUser = user;
 
-                this.renderUser();
+                $('#userName').html(user.firstName + ' ' + user.lastName);
 
                 user.loadMedicalData({
                     weightsCallback: function (user) {
@@ -52,13 +52,13 @@ export class App {
 }
 
 function visualizeWeights(user) {
-    visualize(user.weights, 'bodyWeight', '#chartWeight', 'Weight', 'Kg');
+    visualize(user.weights, '#chartWeight', 'Weight', 'Kg');
 }
 
 function visualizePulse(user) {
-    visualize(user.pulses, 'pulse', '#chartPulse', 'Pulse', '/min');
+    visualize(user.pulses, '#chartPulse', 'Pulse', '/min');
 }
 
 function visualizeTemperature(user) {
-    visualize(user.temperatures, 'bodyTemperature', '#chartTemperature', 'Temperature', '°C');
+    visualize(user.temperatures, '#chartTemperature', 'Temperature', '°C');
 }

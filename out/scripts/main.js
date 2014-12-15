@@ -1,8 +1,8 @@
 System.registerModule("../../scripts/chart", [], function() {
   "use strict";
   var __moduleName = "../../scripts/chart";
-  function visualize(data, propertyName, htmlSelector, name) {
-    var units = arguments[4] !== (void 0) ? arguments[4] : '';
+  function visualize(data, htmlSelector, name) {
+    var units = arguments[3] !== (void 0) ? arguments[3] : '';
     var margin = {
       top: 40,
       right: 20,
@@ -21,7 +21,7 @@ System.registerModule("../../scripts/chart", [], function() {
     });
     var yAxis = d3.svg.axis().scale(y).orient("left");
     var tip = d3.tip().attr('class', 'd3-tip').offset([-10, 0]).html(function(d) {
-      return "<strong>" + name + ":</strong> <span style='color:red'>" + d[propertyName] + " " + units + "</span>";
+      return "<strong>" + name + ":</strong> <span style='color:red'>" + d.value + " " + units + "</span>";
     });
     var svg = d3.select(htmlSelector).html("").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     svg.call(tip);
@@ -29,16 +29,16 @@ System.registerModule("../../scripts/chart", [], function() {
       return d.dateTime;
     }));
     y.domain([0, d3.max(data, function(d) {
-      return d[propertyName];
+      return d.value;
     })]);
     svg.append("g").attr("class", "x axis").attr("transform", "translate(0," + height + ")").call(xAxis);
     svg.append("g").attr("class", "y axis").call(yAxis).append("text").attr("x", -6).attr("y", -10).style("text-anchor", "end").text(units);
     svg.selectAll(".bar").data(data).enter().append("rect").attr("class", "bar").attr("x", function(d) {
       return x(d.dateTime);
     }).attr("width", x.rangeBand()).attr("y", function(d) {
-      return y(d[propertyName]);
+      return y(d.value);
     }).attr("height", function(d) {
-      return height - y(d[propertyName]);
+      return height - y(d.value);
     }).on('mouseover', tip.show).on('mouseout', tip.hide);
   }
   return {get visualize() {
@@ -151,61 +151,56 @@ System.registerModule("../../scripts/ehr", [], function() {
     });
   }
   function loadWeights(ehrId, callback) {
-    loadMedicalData(ehrId, "weight", function(res) {
-      var weights = [];
-      for (var i = 0,
-          len = res.length; i < len; i++) {
-        var $__0 = res[i],
-            time = $__0.time,
-            weight = $__0.weight;
-        weights.push({
-          dateTime: time,
-          bodyWeight: weight
-        });
-      }
-      callback(weights);
-    });
+    loadMedicalData(ehrId, "weight", "weight", callback);
   }
   function loadPulses(ehrId, callback) {
-    loadMedicalData(ehrId, "pulse", function(res) {
-      var pulses = [];
-      for (var i = 0,
-          len = res.length; i < len; i++) {
-        var $__0 = res[i],
-            time = $__0.time,
-            pulse = $__0.pulse;
-        pulses.push({
-          dateTime: time,
-          pulse: pulse
-        });
-      }
-      callback(pulses);
-    });
+    loadMedicalData(ehrId, "pulse", "pulse", callback);
   }
   function loadTemperatures(ehrId, callback) {
-    loadMedicalData(ehrId, "body_temperature", function(res) {
-      var temperatures = [];
-      for (var i = 0,
-          len = res.length; i < len; i++) {
-        var $__0 = res[i],
-            time = $__0.time,
-            temperature = $__0.temperature;
-        temperatures.push({
-          dateTime: time,
-          bodyTemperature: temperature
-        });
-      }
-      callback(temperatures);
-    });
+    loadMedicalData(ehrId, "body_temperature", "temperature", callback);
   }
-  function loadMedicalData(ehrId, type, callback) {
+  function loadMedicalData(ehrId, type, propertyName, callback) {
     $.ajax({
       url: baseUrl + "/view/" + ehrId + "/" + type,
       type: 'GET',
       success: function(res) {
-        callback(res);
+        var arr = [];
+        for (var i = 0,
+            len = res.length; i < len; i++) {
+          var item = res[i];
+          arr.push({
+            dateTime: item.time,
+            value: item[propertyName]
+          });
+        }
+        callback(arr);
       },
       error: function() {
+        console.log(JSON.parse(err.responseText).userMessage);
+      }
+    });
+  }
+  function runQuery(ehrId) {
+    var AQL = "select " + "t/data[at0002]/events[at0003]/time/value as cas, " + "t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude as temperatura_vrednost, " + "t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/units as temperatura_enota " + "from EHR e[e/ehr_id/value='" + ehrId + "'] " + "contains OBSERVATION t[openEHR-EHR-OBSERVATION.body_temperature.v1] " + "where t/data[at0002]/events[at0003]/data[at0001]/items[at0004]/value/magnitude<35 " + "order by t/data[at0002]/events[at0003]/time/value desc " + "limit 10";
+    $.ajax({
+      url: baseUrl + "/query?" + $.param({"aql": AQL}),
+      type: 'GET',
+      headers: {"Ehr-Session": sessionId},
+      success: function(res) {
+        var results = "<table class='table table-striped table-hover'><tr><th>Datum in ura</th><th class='text-right'>Telesna temperatura</th></tr>";
+        if (res) {
+          var rows = res.resultSet;
+          for (var i in rows) {
+            results += "<tr><td>" + rows[i].cas + "</td><td class='text-right'>" + rows[i].temperatura_vrednost + " " + rows[i].temperatura_enota + "</td>";
+          }
+          results += "</table>";
+          $("#rezultatMeritveVitalnihZnakov").append(results);
+        } else {
+          $("#preberiMeritveVitalnihZnakovSporocilo").html("<span class='obvestilo label label-warning fade-in'>Ni podatkov!</span>");
+        }
+      },
+      error: function() {
+        $("#preberiMeritveVitalnihZnakovSporocilo").html("<span class='obvestilo label label-danger fade-in'>Napaka '" + JSON.parse(err.responseText).userMessage + "'!");
         console.log(JSON.parse(err.responseText).userMessage);
       }
     });
@@ -296,19 +291,19 @@ System.registerModule("../../scripts/user", [], function() {
       if (bodyWeight) {
         this.weights.push({
           dateTime: dateTime,
-          bodyWeight: bodyWeight
+          value: bodyWeight
         });
       }
       if (pulse) {
         this.pulses.push({
           dateTime: dateTime,
-          pulse: pulse
+          value: pulse
         });
       }
       if (bodyTemperature) {
         this.temperatures.push({
           dateTime: dateTime,
-          bodyTemperature: bodyTemperature
+          value: bodyTemperature
         });
       }
       createMedicalData(this.ehrId, {
@@ -343,7 +338,7 @@ System.registerModule("../../scripts/app", [], function() {
           var user = new User(data);
           $__3.users[ehrId] = user;
           $__3.selectedUser = user;
-          $__3.renderUser();
+          $('#userName').html(user.firstName + ' ' + user.lastName);
           user.loadMedicalData({
             weightsCallback: function(user) {
               visualizeWeights(user);
@@ -370,13 +365,13 @@ System.registerModule("../../scripts/app", [], function() {
     }
   }, {});
   function visualizeWeights(user) {
-    visualize(user.weights, 'bodyWeight', '#chartWeight', 'Weight', 'Kg');
+    visualize(user.weights, '#chartWeight', 'Weight', 'Kg');
   }
   function visualizePulse(user) {
-    visualize(user.pulses, 'pulse', '#chartPulse', 'Pulse', '/min');
+    visualize(user.pulses, '#chartPulse', 'Pulse', '/min');
   }
   function visualizeTemperature(user) {
-    visualize(user.temperatures, 'bodyTemperature', '#chartTemperature', 'Temperature', '°C');
+    visualize(user.temperatures, '#chartTemperature', 'Temperature', '°C');
   }
   return {get App() {
       return App;
@@ -394,7 +389,6 @@ System.registerModule("../../scripts/generator", [], function() {
       for (var i = 0,
           len = users.length; i < len; i++) {
         var user = users[i];
-        console.log(user);
         createPatient(user, (function(ehrId, name) {
           ehrIds.push({
             ehrId: ehrId,

@@ -112,63 +112,35 @@ export function createMedicalData(ehrId, { dateTime, bodyWeight, pulse, bodyTemp
 }
 
 export function loadWeights(ehrId, callback) {
-    loadMedicalData(ehrId, "weight", function (res) {
-        var weights = [];
-
-        for (let i = 0, len = res.length; i < len; i++) {
-
-            var { time, weight } = res[i];
-
-            weights.push({
-                dateTime: time,
-                bodyWeight: weight
-            });
-        }
-
-        callback(weights);
-    });
+    loadMedicalData(ehrId, "weight", "weight", callback);
 }
 
 export function loadPulses(ehrId, callback) {
-    loadMedicalData(ehrId, "pulse", function (res) {
-        var pulses = [];
-
-        for (let i = 0, len = res.length; i < len; i++) {
-
-            var { time, pulse } = res[i];
-
-            pulses.push({
-                dateTime:  time,
-                pulse: pulse
-            });
-        }
-        callback(pulses);
-    });
+    loadMedicalData(ehrId, "pulse", "pulse", callback);
 }
 
 export function loadTemperatures(ehrId, callback) {
-    loadMedicalData(ehrId, "body_temperature", function (res) {
-        var temperatures = [];
-
-        for (let i = 0, len = res.length; i < len; i++) {
-
-            var { time, temperature } = res[i];
-
-            temperatures.push({
-                dateTime:  time,
-                bodyTemperature: temperature
-            });
-        }
-        callback(temperatures);
-    });
+    loadMedicalData(ehrId, "body_temperature", "temperature", callback);
 }
 
-function loadMedicalData(ehrId, type, callback) {
+function loadMedicalData(ehrId, type, propertyName, callback) {
     $.ajax({
         url: baseUrl + "/view/" + ehrId + "/" + type,
         type: 'GET',
         success: function (res) {
-            callback(res);
+            var arr = [];
+
+            for (let i = 0, len = res.length; i < len; i++) {
+
+                var item = res[i];
+
+                arr.push({
+                    dateTime:  item.time,
+                    value: item[propertyName]
+                });
+            }
+
+            callback(arr);
         },
         error: function() {
             console.log(JSON.parse(err.responseText).userMessage);
