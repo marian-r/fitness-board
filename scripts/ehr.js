@@ -135,12 +135,16 @@ function loadMedicalData(ehrId, type, propertyName, callback) {
                 var item = res[i];
 
                 arr.push({
-                    dateTime:  item.time,
+                    dateTime: item.time,
                     value: item[propertyName]
                 });
             }
 
-            callback(arr);
+            arr = _.sortBy(arr, function (item) {
+                return item.time;
+            });
+
+            callback(arr.reverse());
         },
         error: function() {
             console.log(JSON.parse(err.responseText).userMessage);
