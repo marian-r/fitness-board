@@ -17,36 +17,6 @@ var ehrIds = [
     }
 ];
 
-
-function submitForm() {
-    var dateTime = new Date(); // current time
-    var bodyWeight = $("#inputWeight").val();
-    var pulse = $("#inputPulse").val();
-    var bodyTemperature = $("#inputTemperature").val();
-
-    if (!bodyWeight && !pulse && !bodyTemperature) {
-        console.log("Required");
-    }
-
-    app.selectedUser.addMedicalData({ dateTime, bodyWeight, pulse, bodyTemperature });
-    app.renderUser();
-}
-
-function initUserLinks(ehrIds) {
-    $('#userDivider').prevAll().remove();
-
-    for (let i = 0, len = ehrIds.length; i < len; i++) {
-        var { ehrId, name } = ehrIds[i];
-        let $item = $('<li>')
-            .append($('<a>')
-                .attr('href', '#')
-                .attr('data-user', ehrId)
-                .text(name)
-        );
-        $('#userDivider').before($item);
-    }
-}
-
 $(function () {
     initUserLinks(ehrIds);
 
@@ -63,3 +33,34 @@ $(function () {
 
     $('#submitButton').click(submitForm);
 });
+
+
+function submitForm() {
+    var dateTime = new Date(); // current time
+    var bodyWeight = $("#inputWeight").val();
+    var pulse = $("#inputPulse").val();
+    var bodyTemperature = $("#inputTemperature").val();
+
+    if (!bodyWeight && !pulse && !bodyTemperature) {
+        console.log("Required");
+    }
+
+    app.selectedUser.addMedicalData({ dateTime, bodyWeight, pulse, bodyTemperature });
+    app.renderUser();
+}
+
+function initUserLinks(ehrIds) {
+    var $userDivider = $('#userDivider');
+    $userDivider.prevAll().remove();
+
+    for (let i = 0, len = ehrIds.length; i < len; i++) {
+        var { ehrId, name } = ehrIds[i];
+        let $item = $('<li>')
+            .append($('<a>')
+                .attr('href', '#')
+                .attr('data-user', ehrId)
+                .text(name)
+        );
+        $userDivider.before($item);
+    }
+}

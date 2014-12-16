@@ -475,6 +475,19 @@ System.registerModule("../../scripts/main.js", [], function() {
     ehrId: "325619ee-e0db-4387-a421-47f63ebf3df1",
     name: "Chloe Pearson"
   }];
+  $(function() {
+    initUserLinks(ehrIds);
+    $(document).on('click', 'a[data-user]', function(e) {
+      var ehrId = $(this).data('user');
+      app.selectUser(ehrId);
+    });
+    $('#linkGenerate').click(function() {
+      generatePatients((function(ehrIds) {
+        initUserLinks(ehrIds);
+      }));
+    });
+    $('#submitButton').click(submitForm);
+  });
   function submitForm() {
     var dateTime = new Date();
     var bodyWeight = $("#inputWeight").val();
@@ -492,29 +505,17 @@ System.registerModule("../../scripts/main.js", [], function() {
     app.renderUser();
   }
   function initUserLinks(ehrIds) {
-    $('#userDivider').prevAll().remove();
+    var $userDivider = $('#userDivider');
+    $userDivider.prevAll().remove();
     for (var i = 0,
         len = ehrIds.length; i < len; i++) {
       var $__2 = ehrIds[i],
           ehrId = $__2.ehrId,
           name = $__2.name;
       var $item = $('<li>').append($('<a>').attr('href', '#').attr('data-user', ehrId).text(name));
-      $('#userDivider').before($item);
+      $userDivider.before($item);
     }
   }
-  $(function() {
-    initUserLinks(ehrIds);
-    $(document).on('click', 'a[data-user]', function(e) {
-      var ehrId = $(this).data('user');
-      app.selectUser(ehrId);
-    });
-    $('#linkGenerate').click(function() {
-      generatePatients((function(ehrIds) {
-        initUserLinks(ehrIds);
-      }));
-    });
-    $('#submitButton').click(submitForm);
-  });
   return {};
 });
 System.get("../../scripts/main.js" + '');
