@@ -1,6 +1,6 @@
 [
   {
-    "ehrId": "e8beb87e-97db-4a38-b382-426936c85bd1",
+    "ehrId": "b93da6db-66b5-4635-bf1f-096a04b58800",
     "firstNames": "John",
     "lastNames": "Smith",
     "gender": "MALE",
@@ -37,29 +37,72 @@
   },
 
   {
-    "ehrId": "9db12050-f1ed-4c68-a7b6-2135effa0407",
+    "ehrId": "cbd05021-8ea4-4af0-ba41-73abaebc68a2",
     "firstNames": "Codie",
     "lastNames": "Marshall",
     "gender": "MALE",
     "dateOfBirth": "1990-11-24",
-    "medicalData": []
+    "medicalData": [
+      {
+        "dateTime": "2014-10-13T12:20Z",
+        "bodyWeight": 78.4,
+        "pulse": 82,
+        "bodyTemperature": 36.6
+      },
+      {
+        "dateTime": "2014-10-19T13:22Z",
+        "bodyWeight": 78.5,
+        "pulse": 81,
+        "bodyTemperature": 36.4
+      },
+      {
+        "dateTime": "2014-10-26T14:42Z",
+        "bodyWeight": 78.5,
+        "pulse": 75,
+        "bodyTemperature": 37.1
+      },
+      {
+        "dateTime": "2014-10-29T12:54Z",
+        "bodyWeight": 77.6,
+        "pulse": 76,
+        "bodyTemperature": 37.2
+      },
+      {
+        "dateTime": "2014-11-08T13:17Z",
+        "bodyWeight": 78.1,
+        "pulse": 82,
+        "bodyTemperature": 36.4
+      }
+    ]
   },
 
   {
-    "ehrId": "",
-    "firstNames": "Edward",
-    "lastNames": "Marshall",
-    "gender": "MALE",
-    "dateOfBirth": "1986-08-05",
-    "medicalData": []
-  },
-
-  {
-    "ehrId": "24a0832d-12a7-4a34-86f4-4dc1b111ac25",
+    "ehrId": "325619ee-e0db-4387-a421-47f63ebf3df1",
     "firstNames": "Chloe",
     "lastNames": "Pearson",
     "gender": "FEMALE",
     "dateOfBirth": "1990-08-11",
-    "medicalData": []
+    "medicalData": [
+      {
+        "dateTime": "2014-10-28T16:15Z",
+        "bodyWeight": 69.2,
+        "pulse": 75,
+        "bodyTemperature": 36.5
+      },
+      {
+        "dateTime": "2014-11-07T16:32Z",
+        "bodyWeight": 66.1
+      },
+      {
+        "dateTime": "2014-11-16T20:26Z",
+        "bodyWeight": 64.8,
+        "pulse": 85
+      },
+      {
+        "dateTime": "2014-11-25T17:06Z",
+        "bodyWeight": 63.1,
+        "pulse": 84
+      }
+    ]
   }
 ]

@@ -466,13 +466,13 @@ System.registerModule("../../scripts/main.js", [], function() {
   var generatePatients = System.get("../../scripts/generator").generatePatients;
   var app = new App();
   var ehrIds = [{
-    ehrId: "e8beb87e-97db-4a38-b382-426936c85bd1",
+    ehrId: "b93da6db-66b5-4635-bf1f-096a04b58800",
     name: "John Smith"
   }, {
-    ehrId: "9db12050-f1ed-4c68-a7b6-2135effa0407",
+    ehrId: "cbd05021-8ea4-4af0-ba41-73abaebc68a2",
     name: "Codie Marshall"
   }, {
-    ehrId: "24a0832d-12a7-4a34-86f4-4dc1b111ac25",
+    ehrId: "325619ee-e0db-4387-a421-47f63ebf3df1",
     name: "Chloe Pearson"
   }];
   function submitForm() {
